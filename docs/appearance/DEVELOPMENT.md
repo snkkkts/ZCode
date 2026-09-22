@@ -7,7 +7,7 @@
 - 起始提交：`872ad960de7ec172591f7e1952f7849229f94521`，版本 `3.14.0`；包版本相同不代表与安装包逐文件一致。
 - Fork：`https://github.com/snkkkts/ZCode.git`。当前没有推送或创建 PR。
 - 本次可接手基线：[STATUS.md](STATUS.md)；可导入预设：[presets/README.md](presets/README.md)。
-- 文档顺序：`GOALS.md` → `phase-1.spec.md` → `extended-tokens.spec.md` → `math.spec.md` → `transfer.spec.md` → `isolation.spec.md` → `CHANGELOG.md`。
+- 文档顺序：`GOALS.md` → `phase-1.spec.md` → `extended-tokens.spec.md` → `math.spec.md` → `chat-typography.spec.md` → `quote.spec.md` → `markdown-colors.spec.md` → `themes.spec.md` → `transfer.spec.md` → `isolation.spec.md` → `CHANGELOG.md`。
 
 ## 双击启动（Windows）
 
@@ -51,12 +51,14 @@ pnpm dev:appearance
 pnpm exec vite --config packages/ui/test/appearance-preview/vite.config.ts
 ```
 
-访问 `http://127.0.0.1:5199/`。页面加载正式的外观设置组件、Zustand store、主题样式和窗口外壳；通过测试用 BroadcastChannel 代替桌面 RPC 广播传输，不连接业务后端。它用于功能检查，不是完整产品页面或最终布局。
+访问 `http://127.0.0.1:5199/`。页面加载正式的外观设置组件、真实的 `MessageResponse` 与 `ConversationUserInputBody` 聊天样本（需 `TooltipProvider`）、Zustand store、主题样式和窗口外壳；通过测试用 BroadcastChannel 代替桌面 RPC 广播传输，不连接业务后端。它用于功能检查，不是完整产品页面或最终布局。
 
 ```powershell
-pnpm exec tsx --test packages/ui/test/appearanceSettings.test.ts packages/ui/test/appearanceTransfer.test.ts packages/ui/test/messageSingleDollarMath.test.ts packages/desktop/test/desktopDevelopmentIsolation.test.ts
+pnpm exec tsx --test packages/ui/test/appearanceSettings.test.ts packages/ui/test/appearanceTransfer.test.ts packages/ui/test/appearanceThemes.test.ts packages/ui/test/messageSingleDollarMath.test.ts packages/ui/test/chatTypography.test.ts packages/desktop/test/desktopDevelopmentIsolation.test.ts
 node packages/ui/test/appearance.e2e.mjs
 node packages/ui/test/appearanceTransfer.e2e.mjs
+node packages/ui/test/chatTypography.e2e.mjs
+node packages/ui/test/appearanceThemes.e2e.mjs
 pnpm typecheck
 pnpm lint
 pnpm architecture:check --changed
@@ -71,13 +73,19 @@ E2E 需要本机 Edge（或把脚本中的 `channel: "msedge"` 换成本机 Chro
 | `packages/ui/src/lib/appearanceSettings.ts`                | 版本化配置、默认值、数值/字体/颜色/图片数据校验        |
 | `packages/ui/src/lib/appearanceEnvironment.ts`             | 本地持久化和 CSS 变量投影；明确返回保存失败            |
 | `packages/ui/src/lib/appearanceBackground.ts`              | 图片类型、大小检查和浏览器解码                         |
-| `packages/ui/src/store/appearanceState.ts`                 | 外观配置 setter，先保存成功再接受状态                  |
+| `packages/ui/src/store/appearanceState.ts`                 | 外观配置与方案列表 setter，先保存成功再接受状态        |
 | `packages/ui/src/store/index.ts`                           | 原有全局 store 接入、主题变更、现有广播回环保护        |
 | `packages/ui/src/store/broadcastFields.ts`                 | 跨窗口广播字段声明，避免 store 超过行数门禁            |
 | `packages/ui/src/settings/CustomAppearanceSettings.tsx`    | 设置交互、导入请求失效控制、错误反馈                   |
 | `packages/ui/src/settingsCodePreview.tsx`                  | 原有外观页面挂载点                                     |
-| `packages/ui/src/appearance.css`                           | 外壳装饰背景层；`.katex` 公式颜色/字重/字号覆盖        |
+| `packages/ui/src/appearance.css`                           | 外壳背景层；公式、聊天正文排版、引用块颜色的投影规则   |
 | `packages/ui/src/lib/messageSingleDollarMath.ts`           | 对话 `$...$` 行内公式判定与转义（从 message.tsx 抽出） |
+| `packages/ui/src/settings/ChatTypographySettings.tsx`      | 聊天正文字体、字号、行距输入                           |
+| `packages/ui/src/lib/appearanceThemes.ts`                  | 方案列表校验、持久化、应用方案与内置配色               |
+| `packages/ui/src/lib/appearancePalettes.ts`                | 7 套内置配色数据（与 presets 同源）                    |
+| `packages/ui/src/settings/AppearanceThemeLibrary.tsx`      | 主题方案面板                                           |
+| `packages/ui/src/v4/ConversationRowView.tsx`               | 助手正文接入 `appearance-chat-text`                    |
+| `packages/ui/src/v4/ConversationUserInputBody.tsx`         | 用户消息自然高度内层与折叠判定                         |
 | `packages/ui/src/i18n/locales/{zh-CN,en-US}.ts`            | 中英文设置文案                                         |
 | `packages/desktop/src/main/desktopDevelopmentIsolation.ts` | 早期设置路径规则与禁用系统集成开关                     |
 | `scripts/dev-appearance.mjs`                               | 独立开发实例启动参数                                   |
@@ -86,12 +94,12 @@ E2E 需要本机 Edge（或把脚本中的 `channel: "msedge"` 换成本机 Chro
 
 ## 当前已知边界
 
-- 字体控制界面无衬线栈与代码等宽栈（`codeFontFamily`）；聊天独立字体、独立行距尚未实现，终端字体仍由终端设置管理。
-- 颜色覆盖共 14 项，含链接、行内代码底色、主按钮与主按钮文字、公式颜色；公式另有加粗与字号设置；语法高亮、弹出菜单背景与终端配色尚未开放。
+- 字体：界面无衬线栈、代码等宽栈（`codeFontFamily`）、聊天正文独立字体/字号/行距；终端字体仍由终端设置管理。
+- 颜色覆盖共 21 项，含链接、行内代码底色、主按钮与主按钮文字、公式颜色、引用块文字/竖线/底色、Markdown 标题/加粗/列表符号/表头；公式另有加粗与字号设置；语法高亮、弹出菜单背景与终端配色尚未开放。
 - 颜色覆盖按浅深色分开保存，主面板与侧栏透明度是全局偏好。
 - 卡片、弹窗、输入框不随面板一起降低透明度；设置页可保持清晰。
 - 保留代码高亮和终端现有配色；更完整的终端、Diff、独立窗口适配属于下一阶段。
-- 已提供 JSON 代码框：显示当前配置、实时编辑、按字段合并应用、导出含背景的完整配置，见 `CONFIGURATION.md` 与 `transfer.spec.md`。尚无主题方案库、窗口透出桌面或任意 CSS。
+- 已提供 JSON 代码框：显示当前配置、实时编辑、按字段合并应用、导出含背景的完整配置，见 `CONFIGURATION.md` 与 `transfer.spec.md`。已有软件内主题方案（7 套内置配色与最多 30 个用户方案，方案不含背景图片）；尚无窗口透出桌面或任意 CSS。
 - 跨窗口沿用现有广播机制，完整配置最后到达者覆盖；没有新建 Web 跨标签页同步机制。集成测试验证了接收路径与无回环，不等于实测 Electron RPC 传输。
 - 多窗口共享配置、移动端和全部业务页面仍需在完整工作区补充验收；本次截图覆盖隔离组件页的 1280px 和 390px 布局。
 

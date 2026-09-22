@@ -48,6 +48,9 @@ const EXTRA_TOKENS = [
   "--font-mono",
   "--appearance-math-weight",
   "--appearance-math-size",
+  "--appearance-chat-font",
+  "--appearance-chat-size",
+  "--appearance-chat-leading",
   "--default-font-family",
   "--color-header",
   "--appearance-image",
@@ -127,6 +130,21 @@ export function applyAppearanceSettings(
   if (settings.mathBold) root.style.setProperty("--appearance-math-weight", "700");
   if (settings.mathScale !== DEFAULT_MATH_SCALE)
     root.style.setProperty("--appearance-math-size", `${settings.mathScale / 100}em`);
+  // 聊天正文排版只投影变量与根属性，由 appearance.css 作用于显式标记的正文；不改 --ui-font-size。
+  const chat = [
+    ["font", settings.chatFontFamily ? `${settings.chatFontFamily}, var(--font-sans)` : ""],
+    ["size", settings.chatFontSize ? `${settings.chatFontSize}px` : ""],
+    ["leading", settings.chatLineHeight ? String(settings.chatLineHeight / 100) : ""],
+  ] as const;
+  for (const [key, value] of chat) {
+    if (value) {
+      root.style.setProperty(`--appearance-chat-${key}`, value);
+      root.setAttribute(`data-appearance-chat-${key}`, "true");
+    } else root.removeAttribute(`data-appearance-chat-${key}`);
+  }
+  // 引用块底色需要额外内边距，只在设置了底色时通过根属性启用。
+  if (settings.colors[mode].quoteBackground) root.setAttribute("data-appearance-quote-bg", "true");
+  else root.removeAttribute("data-appearance-quote-bg");
   if (settings.backgroundImage) {
     root.setAttribute("data-appearance-background", "true");
     root.style.setProperty("--appearance-image", `url("${settings.backgroundImage}")`);

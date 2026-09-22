@@ -59,10 +59,18 @@ export function parseAppearancePatch(code: string, base: AppearanceSettings): Ap
   if ("version" in input && input.version !== 1) throw new Error("version");
   const colors = "colors" in input ? mergeColors(base.colors, input.colors) : base.colors;
   const normalized = normalizeAppearanceSettings({ ...base, ...input, colors, version: 1 });
-  for (const key of ["overlay", "blur", "panelOpacity", "sidebarOpacity", "mathScale"] as const) {
+  for (const key of [
+    "overlay",
+    "blur",
+    "panelOpacity",
+    "sidebarOpacity",
+    "mathScale",
+    "chatFontSize",
+    "chatLineHeight",
+  ] as const) {
     if (key in input && input[key] !== normalized[key]) throw new Error(key);
   }
-  for (const key of ["fontFamily", "codeFontFamily"] as const) {
+  for (const key of ["fontFamily", "codeFontFamily", "chatFontFamily"] as const) {
     const font = input[key];
     if (key in input && (typeof font !== "string" || font.trim() !== normalized[key]))
       throw new Error(key);

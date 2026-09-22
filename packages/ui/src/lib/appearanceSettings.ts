@@ -3,6 +3,9 @@ export const MAX_BACKGROUND_BYTES = 2 * 1024 * 1024;
 export const DEFAULT_MATH_SCALE = 121;
 export const MIN_MATH_SCALE = 80;
 export const MAX_MATH_SCALE = 160;
+/** 聊天正文字号（px）与行距（%）的独立范围；0 表示继承原样式。 */
+export const CHAT_FONT_SIZE_RANGE = [12, 28] as const;
+export const CHAT_LINE_HEIGHT_RANGE = [100, 240] as const;
 
 export const APPEARANCE_COLOR_TOKENS = {
   background: "--color-background",
@@ -21,6 +24,15 @@ export const APPEARANCE_COLOR_TOKENS = {
   primaryText: "--color-primary-foreground",
   // KaTeX 公式没有既有语义变量，使用外观层私有变量，仅由 appearance.css 的 .katex 规则消费。
   math: "--appearance-math-color",
+  // 引用块专用颜色：只作用于 [data-markdown-blockquote]，不影响其他辅助文字与边框。
+  quoteText: "--appearance-quote-text",
+  quoteBorder: "--appearance-quote-border",
+  quoteBackground: "--appearance-quote-bg",
+  // Markdown 结构元素颜色：由 appearance.css 的带回退规则消费，未设置时与组件原样式一致。
+  heading: "--appearance-md-heading",
+  strong: "--appearance-md-strong",
+  listMarker: "--appearance-md-marker",
+  tableHeader: "--appearance-md-table-header",
 } as const;
 export type AppearanceColor = keyof typeof APPEARANCE_COLOR_TOKENS;
 export type AppearanceMode = "light" | "dark";
@@ -40,6 +52,12 @@ export interface AppearanceSettings {
   mathBold: boolean;
   /** 公式相对正文的字号百分比；121 为 KaTeX 默认值。 */
   mathScale: number;
+  /** 聊天正文字体；空字符串继承界面字体。 */
+  chatFontFamily: string;
+  /** 聊天正文字号 px；0 继承原字号。 */
+  chatFontSize: number;
+  /** 聊天正文行距百分比；0 继承原行距。 */
+  chatLineHeight: number;
   colors: Record<AppearanceMode, AppearanceColors>;
 }
 
@@ -55,6 +73,9 @@ export const DEFAULT_APPEARANCE_SETTINGS: AppearanceSettings = {
   codeFontFamily: "",
   mathBold: false,
   mathScale: DEFAULT_MATH_SCALE,
+  chatFontFamily: "",
+  chatFontSize: 0,
+  chatLineHeight: 0,
   colors: { light: {}, dark: {} },
 };
 
@@ -71,6 +92,12 @@ function bounded(value: unknown, fallback: number, max = 100): number {
 }
 
 /** 字体名称列表只允许文字、数字、空白、逗号、引号、点、下划线和连字符，避免拼接任意 CSS。 */
+/** 0 表示继承；其他值取整并限制在范围内，非有限数回退为继承。 */
+function optionalRange(value: unknown, [min, max]: readonly [number, number]): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return 0;
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
 function normalizeAppearanceFontFamily(value: unknown): string {
   const font = typeof value === "string" ? value.trim() : "";
   return font.length <= 160 && /^[\p{L}\p{N}\s,"'._-]*$/u.test(font) ? font : "";
@@ -109,6 +136,9 @@ export function normalizeAppearanceSettings(value: unknown): AppearanceSettings 
     fontFamily: normalizeAppearanceFontFamily(source.fontFamily),
     codeFontFamily: normalizeAppearanceFontFamily(source.codeFontFamily),
     mathBold: source.mathBold === true,
+    chatFontFamily: normalizeAppearanceFontFamily(source.chatFontFamily),
+    chatFontSize: optionalRange(source.chatFontSize, CHAT_FONT_SIZE_RANGE),
+    chatLineHeight: optionalRange(source.chatLineHeight, CHAT_LINE_HEIGHT_RANGE),
     mathScale: Math.max(
       MIN_MATH_SCALE,
       bounded(source.mathScale, DEFAULT_MATH_SCALE, MAX_MATH_SCALE),

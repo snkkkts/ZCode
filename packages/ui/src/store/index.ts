@@ -7,6 +7,7 @@ import { BROADCAST_FIELDS, type BroadcastField } from "./broadcastFields.js";
  */
 import { create } from "zustand";
 import { isAppearanceSettings } from "@/lib/appearanceSettings.js";
+import { isAppearanceThemeList } from "@/lib/appearanceThemes.js";
 import { createAppearanceState, type AppearanceState } from "@/store/appearanceState.js";
 import { applyAppearanceSettings } from "@/lib/appearanceEnvironment.js";
 import type { IBroadcastService, BroadcastMessage } from "@zcode/services";
@@ -476,6 +477,8 @@ export function createZCodeStore(
       const state = useStore.getState();
       if (field === "appearanceSettings" && isAppearanceSettings(msg.payload)) {
         state.setAppearanceSettings(msg.payload);
+      } else if (field === "appearanceThemes" && isAppearanceThemeList(msg.payload)) {
+        state.setAppearanceThemes(msg.payload);
       } else if (field === "theme" && typeof msg.payload === "string") {
         state.setTheme(msg.payload as Theme);
       } else if (field === "locale" && typeof msg.payload === "string") {

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppearanceCodeTransfer } from "./AppearanceCodeTransfer.js";
+import { ChatTypographySettings } from "./ChatTypographySettings.js";
+import { AppearanceThemeLibrary } from "./AppearanceThemeLibrary.js";
 import { useZCodeStore } from "@/store/StoreProvider.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { Button } from "@/components/ui/button.js";
@@ -88,6 +90,12 @@ export function CustomAppearanceSettings() {
           {message(error)}
         </p>
       )}
+      <AppearanceThemeLibrary
+        onBeforeApply={() => {
+          cancelImport();
+          setError("");
+        }}
+      />
       <Card className="border border-border bg-card py-0 shadow-none">
         <CardContent className="space-y-5 p-4">
           <div className="space-y-2">
@@ -189,6 +197,7 @@ export function CustomAppearanceSettings() {
               </span>
             </label>
           ))}
+          <ChatTypographySettings settings={settings} save={save} />
           <div className="space-y-3">
             <label className="flex flex-wrap items-center justify-between gap-2 text-ui-base">
               {message("mathBold")}

@@ -32,6 +32,7 @@ export function ConversationUserInputBody({
 }) {
   const { intl } = useZCodeIntl();
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const naturalRef = useRef<HTMLDivElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const [contentScrollHeight, setContentScrollHeight] = useState(
     COLLAPSED_USER_INPUT_CONTENT_MAX_HEIGHT_PX,
@@ -48,7 +49,8 @@ export function ConversationUserInputBody({
 
   useEffect(() => {
     const content = contentRef.current;
-    if (!content) {
+    const natural = naturalRef.current;
+    if (!content || !natural) {
       setExpandable(false);
       return;
     }
@@ -83,7 +85,9 @@ export function ConversationUserInputBody({
     let observer: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
       observer = new ResizeObserver(scheduleOverflowUpdate);
-      observer.observe(content);
+      // 外层受 maxHeight 限制，正文字号变化时尺寸不变、观察不到；观察自然高度的内层，
+      // 保证外观设置改变正文字号后折叠判定随之更新。
+      observer.observe(natural);
     } else {
       window.addEventListener("resize", scheduleOverflowUpdate);
     }
@@ -113,7 +117,9 @@ export function ConversationUserInputBody({
             : "",
         )}
       >
-        {children}
+        <div ref={naturalRef} className="appearance-chat-text appearance-chat-plain">
+          {children}
+        </div>
       </div>
       {expandable ? (
         <div

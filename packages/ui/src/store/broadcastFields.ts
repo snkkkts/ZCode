@@ -4,6 +4,7 @@ export const BROADCAST_FIELDS = new Set([
   "uiFontSizePx",
   "interfaceMode",
   "appearanceSettings",
+  "appearanceThemes",
 ]);
 
 export type BroadcastField =
@@ -11,4 +12,5 @@ export type BroadcastField =
   | "locale"
   | "uiFontSizePx"
   | "interfaceMode"
-  | "appearanceSettings";
+  | "appearanceSettings"
+  | "appearanceThemes";

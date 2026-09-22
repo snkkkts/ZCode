@@ -37,3 +37,72 @@
   font-size: var(--appearance-math-size, 1.21em);
   font-weight: var(--appearance-math-weight, normal);
 }
+
+/* 聊天正文独立排版：只作用于显式标记 .appearance-chat-text 的助手正文与用户消息。
+ * 在作用域内重定义 text-ui-* 字号刻度，标题保留 +4/+2/0px 层级，行内代码为正文 -2px；
+ * 代码围栏、按钮、表格操作等控件恢复全局刻度（--ui-font-size 未被修改）。 */
+[data-appearance-chat-font] .appearance-chat-text {
+  font-family: var(--appearance-chat-font);
+}
+[data-appearance-chat-size] .appearance-chat-text {
+  --text-ui-xl: calc(var(--appearance-chat-size) + 4px);
+  --text-ui-lg: calc(var(--appearance-chat-size) + 2px);
+  --text-ui-base: var(--appearance-chat-size);
+  --text-ui-caption: calc(var(--appearance-chat-size) - 1px);
+  --text-ui-sm: calc(var(--appearance-chat-size) - 2px);
+  --text-ui-xs: calc(var(--appearance-chat-size) - 4px);
+  font-size: var(--text-ui-base);
+}
+[data-appearance-chat-size]
+  .appearance-chat-text
+  :is([data-language], [data-streamdown^="mermaid"], [data-streamdown="table-fullscreen"], button) {
+  --text-ui-xl: calc(var(--ui-font-size) + 4px);
+  --text-ui-lg: calc(var(--ui-font-size) + 2px);
+  --text-ui-base: var(--ui-font-size);
+  --text-ui-caption: calc(var(--ui-font-size) - 1px);
+  --text-ui-sm: calc(var(--ui-font-size) - 2px);
+  --text-ui-xs: calc(var(--ui-font-size) - 4px);
+}
+[data-appearance-chat-size]
+  .appearance-chat-text
+  :is([data-language], [data-streamdown^="mermaid"]) {
+  font-size: var(--text-ui-base);
+}
+[data-appearance-chat-font]
+  .appearance-chat-text
+  :is([data-language], [data-streamdown^="mermaid"], button) {
+  font-family: var(--font-sans);
+}
+/* 行距只作用于文字元素；助手正文根保留原 leading，代码块等容器因此继承原行距。 */
+[data-appearance-chat-leading] .appearance-chat-plain,
+[data-appearance-chat-leading]
+  .appearance-chat-text
+  :is(p, li, blockquote, h1, h2, h3, h4, h5, h6, td, th) {
+  line-height: var(--appearance-chat-leading);
+}
+
+/* 引用块颜色：变量未设置时回退到组件原有的辅助文字与边框颜色，默认外观不变。 */
+[data-markdown-blockquote] {
+  color: var(--appearance-quote-text, var(--color-foreground-subtle));
+  border-left-color: var(--appearance-quote-border, var(--color-border));
+}
+[data-appearance-quote-bg] [data-markdown-blockquote] {
+  background-color: var(--appearance-quote-bg);
+  border-radius: 0 0.375rem 0.375rem 0;
+  padding-block: 0.5rem;
+  padding-right: 0.75rem;
+}
+
+/* Markdown 元素颜色：回退值与组件原样式一致（标题、加粗继承文字颜色，列表符号与表头为 subtlest）。 */
+[data-streamdown^="heading-"] {
+  color: var(--appearance-md-heading, currentColor);
+}
+[data-streamdown="strong"] {
+  color: var(--appearance-md-strong, currentColor);
+}
+:is([data-streamdown="unordered-list"], [data-streamdown="ordered-list"]) > li::marker {
+  color: var(--appearance-md-marker, var(--color-foreground-subtlest));
+}
+[data-streamdown="table"] th {
+  color: var(--appearance-md-table-header, var(--color-foreground-subtlest));
+}

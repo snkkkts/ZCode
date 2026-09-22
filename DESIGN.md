@@ -11,7 +11,7 @@ The dedicated `text-ui-*` scale is a mandatory repository-wide constraint for ap
 - UI components must use `text-ui-xl`, `text-ui-lg`, `text-ui-base`, `text-ui-caption`, `text-ui-sm`, or `text-ui-xs`.
 - Do not introduce Tailwind's built-in `text-base`, `text-sm`, or `text-xs` for application UI.
 - Do not introduce arbitrary UI font sizes such as `text-[13px]` or inline `font-size` values.
-- The only content-level exceptions are code, Diff, and terminal rendering that consume their independent numeric font-size settings. Their surrounding controls, labels, headers, and metadata must still use `text-ui-*`.
+- The only content-level exceptions are code, Diff, and terminal rendering that consume their independent numeric font-size settings, and conversation reading text (user messages and assistant replies marked with `appearance-chat-text`) when the user sets an independent chat font size in custom appearance. The chat exception rescales `text-ui-*` only inside that scope and never changes `--ui-font-size`. Their surrounding controls, labels, headers, and metadata must still use `text-ui-*`.
 - Mobile Web editable inputs that must prevent iOS focus zoom use the fixed `text-mobile-input-safe` compatibility token (16px). Do not use it as a general UI hierarchy token.
 - Never implement interface font scaling by changing `html` or `document.documentElement.style.fontSize`; update only `--ui-font-size`.
 

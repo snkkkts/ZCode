@@ -1342,7 +1342,11 @@ export const MessageResponse = memo(
           node: _node,
           ...strongProps
         }: MarkdownStrongProps) => (
-          <strong className={cn("font-medium", strongClassName)} {...strongProps} />
+          <strong
+            className={cn("font-medium", strongClassName)}
+            data-streamdown="strong"
+            {...strongProps}
+          />
         ),
         code: ({
           children,

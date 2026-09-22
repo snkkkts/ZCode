@@ -2,6 +2,42 @@
 
 按日期倒序记录，每次可交付变更新增一条。实现尚未完成时明确标记，不能以计划代替完成记录。
 
+## 2026-09-22 — Markdown 元素颜色与软件内主题方案
+
+- 目标：继续“高度可定制”——补齐 Markdown 结构元素的文字颜色，并提供不用写 JSON 的方案保存与切换。
+- Markdown 元素颜色（新增 `markdown-colors.spec.md`）：颜色键 `heading`、`strong`、`listMarker`、`tableHeader`，外观层私有变量 + `appearance.css` 带回退规则，未设置时与组件原样式一致；聊天自定义 `strong` 组件补 `data-streamdown="strong"`（`message.tsx`）。
+- 主题方案（新增 `themes.spec.md`）：
+  - 内置配色：`lib/appearancePalettes.ts` 收录 7 套（与 `presets/` 同源），套用只替换 `colors`。
+  - 我的方案：保存当前外观（不含背景图片）、应用（保留当前背景）、用当前覆盖、重命名、复制（自动生成不重名名称）、二次确认删除；最多 30 个，名称 1–40 字符。
+  - 状态：ZCode store 新增 `appearanceThemes`，`setAppearanceThemes` 先写 `zcode-appearance-themes-v1` 成功再接受；加入既有广播字段，接收端逐项校验并防回环。应用方案只走既有 `setAppearanceSettings`。
+  - 取舍：方案不含背景图片，避免每个方案重复保存最大 2 MiB 的 data URL 耗尽 localStorage；带背景的方案需先设计资产存储。
+- 修改文件：新增 `lib/appearanceThemes.ts`、`lib/appearancePalettes.ts`、`settings/AppearanceThemeLibrary.tsx`、`test/appearanceThemes.test.ts`、`test/appearanceThemes.e2e.mjs`；修改 `lib/appearanceSettings.ts`、`appearance.css`、`components/ai-elements/message.tsx`、`store/appearanceState.ts`、`store/broadcastFields.ts`、`store/index.ts`（广播接收一条分支）、`settings/CustomAppearanceSettings.tsx`、中英文文案、`test/appearanceSettings.test.ts`、`test/chatTypography.e2e.mjs`、`test/appearance-preview/main.tsx`；文档 `CONFIGURATION.md`、`DEVELOPMENT.md`、`GOALS.md`、`STATUS.md`、`presets/README.md`。
+- 验证（云端 `872ad96` + 本机当前文件快照，Node 22.22.2；Linux Chromium 代替 Edge，仓库脚本未改）：
+  - `pnpm typecheck` 通过；`pnpm lint` 0 错误、70 警告（与改动前相同）；`pnpm architecture:check --changed` 0 违规；`pnpm fmt:check` 通过；`pnpm knip` 未新增本次源码的未使用导出。
+  - 单元 23/23 通过。
+  - 四组 E2E 均 PASS：新增 `appearanceThemes.e2e.mjs` 覆盖内置配色只换颜色（背景与字体保留）、保存方案、另一窗口收到且不回播、应用恢复且保留背景、重命名、复制、覆盖、二次确认删除、刷新保持、方案存储失败、窄屏；`chatTypography.e2e.mjs` 新增标题/加粗/有序与无序列表符号/表头颜色及恢复默认。已查看截图。
+- 限制：未在完整桌面工作区与 Windows 上实测；方案不能导出为文件，也不含背景图片；内置配色不含引用块与 Markdown 元素颜色。
+- 提交：未提交、未推送。
+
+## 2026-09-22 — 聊天正文独立排版（接续 Astra 的规格）与引用块颜色
+
+- 接手：阅读 Astra 建立的 Git 基线（481acf0）、`STATUS.md`、`desktop-shortcut.spec.md` 与未完成的 `chat-typography.spec.md`。该规格与 `packages/ui/test/chatTypography.test.ts` 已写好但尚无实现；本轮按其规格实现，未改动 Astra 的启动脚本与快捷方式。Astra 的单元测试只做了格式化，断言未改。
+- 用户问题：带背景图时 Markdown 引用块看不清；只改 `secondaryText`/`border` 会影响所有辅助文字和边框。
+- 聊天正文排版（`chat-typography.spec.md`）：
+  - 字段 `chatFontFamily`、`chatFontSize`（0 或 12–28 px）、`chatLineHeight`（0 或 100–240%），导入严格校验、合并与导出往返。
+  - 投影 `--appearance-chat-*` 变量与 `data-appearance-chat-*` 根属性；`appearance.css` 在 `.appearance-chat-text` 作用域内重定义 `text-ui-*` 刻度，代码块容器、Mermaid、表格全屏和按钮恢复全局刻度与界面字体；不改 `--ui-font-size` 与根字号。
+  - 助手正文在 `ConversationRowView` 显式接入；`ConversationUserInputBody` 新增自然高度内层并改为观察它，修复字号变化后折叠判定不更新的问题（外层受 maxHeight 限制，尺寸不变时 ResizeObserver 不触发）。
+  - 新增 `settings/ChatTypographySettings.tsx`；DESIGN.md 增加聊天阅读正文的内容级字号例外。
+- 引用块颜色（新增 `quote.spec.md`）：颜色键 `quoteText`、`quoteBorder`、`quoteBackground`，未设置时回退到原辅助文字与边框颜色；设置底色时增加内边距与圆角。
+- 预览页：`appearance-preview/main.tsx` 加入真实 `MessageResponse`（接入与未接入各一份）与 `ConversationUserInputBody` 样本，并补 `TooltipProvider`（表格工具栏需要）。
+- 修改文件：`lib/appearanceSettings.ts`、`lib/appearanceTransfer.ts`、`lib/appearanceEnvironment.ts`、`appearance.css`、`settings/CustomAppearanceSettings.tsx`、新增 `settings/ChatTypographySettings.tsx`、`v4/ConversationRowView.tsx`、`v4/ConversationUserInputBody.tsx`、中英文文案、`test/appearanceSettings.test.ts`（引用块用例）、`test/chatTypography.test.ts`（格式化）、新增 `test/chatTypography.e2e.mjs`、`test/appearance-preview/main.tsx`、`DESIGN.md`；文档 `chat-typography.spec.md`、`quote.spec.md`、`CONFIGURATION.md`、`DEVELOPMENT.md`、`GOALS.md`、`STATUS.md`。
+- 验证（云端 `872ad96` + 本机 481acf0 及未提交文件的快照，Node 22.22.2，低于 `mise.toml` 的 24.14.0；Linux Chromium 代替 Edge，仓库脚本未改）：
+  - `pnpm typecheck` 通过；`pnpm lint` 0 错误、70 警告（与改动前相同）；`pnpm architecture:check --changed` 0 违规；`pnpm fmt:check` 通过。
+  - 单元 17/17 通过（外观、导入、聊天排版、公式、桌面隔离）。
+  - `appearance.e2e.mjs`、`appearanceTransfer.e2e.mjs`、新增 `chatTypography.e2e.mjs` 均 PASS。新 E2E 检查真实组件的计算样式：段落 22px/39.6px 与字体、标题 24px、行内代码 20px、表格文字、用户消息字号行距与折叠按钮出现；代码块、代码块标题、表格按钮、未接入的 Markdown、根字号与 `--ui-font-size` 不变；引用块三色；刷新、窄屏、输入越界取边界、留空继承、恢复默认。已查看截图。
+- 限制：未在完整桌面工作区的真实会话与流式输出中验证；分享只读页、工具调用内 Markdown、预览面板未接入聊天排版；引用块底色为不透明色；未在 Windows 上重新运行检查。7 套预设未加入新字段。
+- 提交：未提交、未推送。
+
 ## 2026-09-22 — 整理主题系统并建立 Git 交接基线
 
 - 目标：将此前已完成的主题、配置代码、公式与开发启动功能统一整理为可接手的本地 Git 提交。

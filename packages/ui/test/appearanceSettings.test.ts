@@ -176,3 +176,80 @@ test("公式样式：颜色、加粗与字号只在设置时投影，默认值�
   assert.equal(normalizeAppearanceSettings({ version: 1, mathScale: 999 }).mathScale, 160);
   assert.equal(normalizeAppearanceSettings({ version: 1, mathBold: "yes" }).mathBold, false);
 });
+
+test("引用块颜色：投影专用变量，底色启用根属性，浅深色独立且可恢复", () => {
+  const values = new Map<string, string>();
+  const attributes = new Map<string, string>();
+  const root = {
+    style: {
+      setProperty: (k: string, v: string) => {
+        values.set(k, v);
+      },
+      removeProperty: (k: string) => {
+        values.delete(k);
+      },
+    },
+    setAttribute: (k: string, v: string) => {
+      attributes.set(k, v);
+    },
+    removeAttribute: (k: string) => {
+      attributes.delete(k);
+    },
+  };
+  const computed = () => ({ getPropertyValue: () => "" });
+  const config = normalizeAppearanceSettings({
+    version: 1,
+    colors: {
+      dark: { quoteText: "#D8CFE8", quoteBorder: "#f2a7bc", quoteBackground: "#2a2233" },
+      light: { quoteText: "#4a3f5c" },
+    },
+  });
+  applyAppearanceSettings(config, "dark", root, computed);
+  assert.equal(values.get("--appearance-quote-text"), "#d8cfe8");
+  assert.equal(values.get("--appearance-quote-border"), "#f2a7bc");
+  assert.equal(values.get("--appearance-quote-bg"), "#2a2233");
+  assert.equal(attributes.get("data-appearance-quote-bg"), "true");
+  applyAppearanceSettings(config, "light", root, computed);
+  assert.equal(values.get("--appearance-quote-text"), "#4a3f5c");
+  assert.equal(values.has("--appearance-quote-bg"), false);
+  assert.equal(attributes.has("data-appearance-quote-bg"), false);
+  applyAppearanceSettings(DEFAULT_APPEARANCE_SETTINGS, "dark", root, computed);
+  assert.equal(values.has("--appearance-quote-text"), false);
+  assert.equal(attributes.has("data-appearance-quote-bg"), false);
+});
+
+test("Markdown 元素颜色：投影外观层变量，未设置时不投影", () => {
+  const values = new Map<string, string>();
+  const root = {
+    style: {
+      setProperty: (k: string, v: string) => {
+        values.set(k, v);
+      },
+      removeProperty: (k: string) => {
+        values.delete(k);
+      },
+    },
+    setAttribute() {},
+    removeAttribute() {},
+  };
+  const computed = () => ({ getPropertyValue: () => "" });
+  const config = normalizeAppearanceSettings({
+    version: 1,
+    colors: {
+      dark: {
+        heading: "#7AA2F7",
+        strong: "#ff9e64",
+        listMarker: "#bb9af7",
+        tableHeader: "#9ece6a",
+      },
+    },
+  });
+  applyAppearanceSettings(config, "dark", root, computed);
+  assert.equal(values.get("--appearance-md-heading"), "#7aa2f7");
+  assert.equal(values.get("--appearance-md-strong"), "#ff9e64");
+  assert.equal(values.get("--appearance-md-marker"), "#bb9af7");
+  assert.equal(values.get("--appearance-md-table-header"), "#9ece6a");
+  applyAppearanceSettings(config, "light", root, computed);
+  for (const token of ["heading", "strong", "marker", "table-header"])
+    assert.equal(values.has(`--appearance-md-${token}`), false);
+});

@@ -1516,7 +1516,9 @@ const AssistantTextRowView = memo(function AssistantTextRowView({
           导致 assistant 正文虽然在 JSX 上标了 selectable，框选逻辑却永远找不到该区域。
           selectable 语义必须放在稳定的 DOM 包装层上，完成态和 streaming 共用同一路径。 */}
       <div data-conversation-selectable="true" className="w-full text-ui-base">
+        {/* appearance-chat-text 显式接入聊天正文独立排版；其他复用 Markdown 的面板不受影响。 */}
         <MessageResponse
+          className="appearance-chat-text"
           renderZCodeFileCitations
           streaming={streaming}
           workspacePath={context.workspacePath}
