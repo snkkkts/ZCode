@@ -1,0 +1,39 @@
+/* 图片层与内容层分离：透明度只作用于背景，不降低文字和控件的不透明度。 */
+[data-desktop-window-frame] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-appearance-background] [data-desktop-window-frame] {
+  background-color: var(--appearance-base);
+}
+
+[data-appearance-background] [data-desktop-window-frame]::before,
+[data-appearance-background] [data-desktop-window-frame]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+[data-appearance-background] [data-desktop-window-frame]::before {
+  background-image: var(--appearance-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: var(--appearance-fit);
+  filter: blur(var(--appearance-blur));
+}
+
+[data-appearance-background] [data-desktop-window-frame]::after {
+  background-color: var(--appearance-base);
+  opacity: var(--appearance-overlay);
+}
+
+/* 公式外观：katex.min.css 在本文件之后导入且用 font 简写重置字号与字重，
+ * 这里用 :root 提高优先级。变量未设置时回退到 KaTeX 默认值；公式内 \color、\mathbf 等显式样式仍优先。 */
+:root .katex {
+  color: var(--appearance-math-color, currentColor);
+  font-size: var(--appearance-math-size, 1.21em);
+  font-weight: var(--appearance-math-weight, normal);
+}

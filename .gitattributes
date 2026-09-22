@@ -9,3 +9,7 @@ third-party/upstream/** -text -whitespace
 third-party/native-search/licenses/** -text -whitespace
 third-party/runtime/*.txt -text -whitespace
 third-party/inventory.json linguist-generated=true
+
+# Windows 开发启动器在工作区使用 CRLF；Git 以标准文本保存，保留 UTF-8 BOM。
+scripts/start-preview.ps1 text eol=crlf
+scripts/install-preview-shortcut.ps1 text eol=crlf

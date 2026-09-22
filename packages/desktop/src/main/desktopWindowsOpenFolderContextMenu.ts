@@ -1,3 +1,4 @@
+import { isDesktopShellIntegrationDisabled } from "./desktopDevelopmentIsolation.js";
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
 import type { Locale } from "@zcode/shared";
@@ -83,6 +84,7 @@ export async function installWindowsOpenFolderContextMenu(options: {
   locale: Locale;
   logger: Logger;
 }): Promise<void> {
+  if (isDesktopShellIntegrationDisabled()) return;
   if (options.platform !== "win32") {
     return;
   }

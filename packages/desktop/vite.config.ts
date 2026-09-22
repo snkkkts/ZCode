@@ -162,6 +162,14 @@ export default defineConfig(({ mode }) => {
   const codingPlanWebviewOrigin =
     env.VITE_CODING_PLAN_WEBVIEW_ORIGIN ?? process.env.VITE_CODING_PLAN_WEBVIEW_ORIGIN ?? "";
   const plugins = [
+    {
+      name: "zcode:product-window-title",
+      // HTML 原来写死 ZCode，使 Preview 开发窗口与正式版无法从标题区分。
+      transformIndexHtml(html: string) {
+        const title = zcodeProductFlavor === "preview" ? "ZCode Preview" : "ZCode";
+        return html.replace("<title>ZCode</title>", `<title>${title}</title>`);
+      },
+    },
     ...(e2eCoverageEnabled ? [createE2EUIRendererCoveragePlugin(repoRoot)] : []),
     pdfJsCMapsPlugin(),
     react(),

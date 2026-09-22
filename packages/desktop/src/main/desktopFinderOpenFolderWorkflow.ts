@@ -1,3 +1,4 @@
+import { isDesktopShellIntegrationDisabled } from "./desktopDevelopmentIsolation.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -252,6 +253,7 @@ export function installFinderOpenFolderWorkflow(options: {
   logger: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void };
   refreshServicesIndex?: () => void;
 }): void {
+  if (isDesktopShellIntegrationDisabled()) return;
   if (options.platform !== "darwin") {
     return;
   }

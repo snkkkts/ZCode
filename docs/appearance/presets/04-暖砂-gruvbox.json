@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "backgroundImage": "",
+  "backgroundFit": "cover",
+  "overlay": 30,
+  "blur": 0,
+  "panelOpacity": 100,
+  "sidebarOpacity": 100,
+  "fontFamily": "\"霞鹜文楷 GB Light\", \"LXGW WenKai GB Light\"",
+  "codeFontFamily": "Consolas, \"霞鹜文楷 GB Light\", \"LXGW WenKai GB Light\"",
+  "mathBold": false,
+  "mathScale": 121,
+  "colors": {
+    "light": {
+      "background": "#f2e5bc",
+      "sidebar": "#f2e5bc",
+      "panel": "#fbf1c7",
+      "card": "#fffaeb",
+      "input": "#fffaeb",
+      "brand": "#af3a03",
+      "foreground": "#3c3836",
+      "secondaryText": "#7c6f64",
+      "border": "#e0cfa9",
+      "link": "#076678",
+      "inlineCode": "#e0cfa9",
+      "primary": "#af3a03",
+      "primaryText": "#fbf1c7",
+      "math": "#8f3f71"
+    },
+    "dark": {
+      "background": "#1d2021",
+      "sidebar": "#1d2021",
+      "panel": "#282828",
+      "card": "#32302f",
+      "input": "#32302f",
+      "brand": "#fe8019",
+      "foreground": "#ebdbb2",
+      "secondaryText": "#a89984",
+      "border": "#45403d",
+      "link": "#83a598",
+      "inlineCode": "#45403d",
+      "primary": "#fe8019",
+      "primaryText": "#1d2021",
+      "math": "#d3869b"
+    }
+  }
+}

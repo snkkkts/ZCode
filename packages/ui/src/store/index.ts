@@ -1,3 +1,4 @@
+import { BROADCAST_FIELDS, type BroadcastField } from "./broadcastFields.js";
 /**
  * Zustand Store —— 全局状态管理
  *
@@ -5,6 +6,9 @@
  * 广播频道前缀 "state:" 表示状态同步类消息。
  */
 import { create } from "zustand";
+import { isAppearanceSettings } from "@/lib/appearanceSettings.js";
+import { createAppearanceState, type AppearanceState } from "@/store/appearanceState.js";
+import { applyAppearanceSettings } from "@/lib/appearanceEnvironment.js";
 import type { IBroadcastService, BroadcastMessage } from "@zcode/services";
 import type { OAuthProviderId, UserInfo } from "@zcode/shared";
 import type { CodingPlanResetType } from "@zcode/shared";
@@ -99,7 +103,7 @@ function loadPerformanceMode(): boolean {
 // State 定义
 // ============================================================================
 
-export interface ZCodeState {
+export interface ZCodeState extends AppearanceState {
   /** 展示详情偏好，不改变 Agent 权限或执行能力。 */
   interfaceMode: InterfaceMode;
   setInterfaceMode: (mode: InterfaceMode) => void;
@@ -211,10 +215,6 @@ export interface ZCodeState {
 // 需要广播的字段 —— 只有这些字段的变更会发送给其他窗口
 // ============================================================================
 
-const BROADCAST_FIELDS = new Set(["theme", "locale", "uiFontSizePx", "interfaceMode"]);
-
-type BroadcastField = "theme" | "locale" | "uiFontSizePx" | "interfaceMode";
-
 /** 广播频道名前缀 */
 const STATE_CHANNEL_PREFIX = "state:";
 
@@ -240,6 +240,7 @@ export function createZCodeStore(
   let syncSystemThemeListener = (_theme: Theme) => {};
 
   const useStore = create<ZCodeState>()((set, get) => ({
+    ...createAppearanceState(set, get),
     interfaceMode: normalizeInterfaceMode(readSafeLocalStorage(INTERFACE_MODE_STORAGE_KEY)),
     setInterfaceMode: (mode) => {
       const interfaceMode = normalizeInterfaceMode(mode);
@@ -260,6 +261,7 @@ export function createZCodeStore(
       writeSafeLocalStorage("zcode-theme", normalizedTheme);
       syncSystemThemeListener(normalizedTheme);
       applyTheme(normalizedTheme);
+      applyAppearanceSettings(get().appearanceSettings, resolveTheme(normalizedTheme));
 
       set({ theme: normalizedTheme });
     },
@@ -414,6 +416,7 @@ export function createZCodeStore(
       // system 模式需要持续订阅系统亮暗变化，不能只在切换到 system 的瞬间应用一次。
       // 否则用户后续切系统主题时，DOM 上的 dark class 不会同步更新，看起来就像“跟随系统失效”。
       applyTheme("system");
+      applyAppearanceSettings(useStore.getState().appearanceSettings, resolveTheme("system"));
     };
 
     if (typeof mediaQuery.addEventListener === "function") {
@@ -471,7 +474,9 @@ export function createZCodeStore(
     try {
       // 调用对应的 setter，确保副作用（localStorage、DOM）也执行
       const state = useStore.getState();
-      if (field === "theme" && typeof msg.payload === "string") {
+      if (field === "appearanceSettings" && isAppearanceSettings(msg.payload)) {
+        state.setAppearanceSettings(msg.payload);
+      } else if (field === "theme" && typeof msg.payload === "string") {
         state.setTheme(msg.payload as Theme);
       } else if (field === "locale" && typeof msg.payload === "string") {
         state.setLocale(msg.payload);
@@ -491,6 +496,10 @@ export function createZCodeStore(
   syncSystemThemeListener(useStore.getState().theme);
   applyTheme(useStore.getState().theme);
   applyUiFontSizePx(useStore.getState().uiFontSizePx);
+  applyAppearanceSettings(
+    useStore.getState().appearanceSettings,
+    resolveTheme(useStore.getState().theme),
+  );
   document.documentElement.classList.toggle(
     "dark",
     resolveTheme(useStore.getState().theme) === "dark",

@@ -1,3 +1,4 @@
+import { CustomAppearanceSettings } from "@/settings/CustomAppearanceSettings.js";
 import type { Theme } from "@/useTheme.js";
 import { useState } from "react";
 import { resolveTheme } from "@/useTheme.js";
@@ -155,6 +156,8 @@ export function AppearanceSectionContent({
           </CardContent>
         </Card>
       </div>
+
+      <CustomAppearanceSettings />
 
       <div className="space-y-6">
         <div className="min-w-0 space-y-3">

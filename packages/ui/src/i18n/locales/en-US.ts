@@ -1,5 +1,74 @@
 /** English translations */
 const enUS: Record<string, string> = {
+  "settings.appearanceCode.title": "Appearance configuration (JSON)",
+  "settings.appearanceCode.help":
+    'Shows the current configuration (without the background image). Edits apply automatically when you stop typing, and you can paste only some fields. Fields you leave out and the background image stay unchanged; set a color to "" to inherit the theme again. Export copies the full configuration including the image. Up to 3 MiB.',
+  "settings.appearanceCode.export": "Export and copy",
+  "settings.appearanceCode.import": "Apply now",
+  "settings.appearanceCode.importing": "Validating…",
+  "settings.appearanceCode.copied":
+    "Copied the full configuration (including the image) to the clipboard.",
+  "settings.appearanceCode.manualCopy":
+    "Clipboard access failed. The full configuration is in the code field; copy it manually.",
+  "settings.appearanceCode.imported": "Applied and saved.",
+  "settings.appearanceCode.invalid":
+    "Invalid configuration ({field}). Current appearance was not changed.",
+  "settings.appearanceCode.saveFailed":
+    "Saving failed; current appearance was not changed. Check storage space or use a smaller image.",
+  "settings.customAppearance.title": "Custom appearance",
+  "settings.customAppearance.description":
+    "Changes preview immediately and are saved on this device. Background and text are controlled separately.",
+  "settings.customAppearance.reset": "Reset custom appearance",
+  "settings.customAppearance.background": "Background image",
+  "settings.customAppearance.backgroundHelp":
+    "PNG, JPEG or WebP, up to 2 MiB. Lower surface opacity to reveal the image.",
+  "settings.customAppearance.chooseImage": "Choose image",
+  "settings.customAppearance.clearImage": "Clear image",
+  "settings.customAppearance.loading": "Reading image…",
+  "settings.customAppearance.fit": "Image fit",
+  "settings.customAppearance.cover": "Cover",
+  "settings.customAppearance.contain": "Contain",
+  "settings.customAppearance.overlay": "Background overlay",
+  "settings.customAppearance.blur": "Background blur",
+  "settings.customAppearance.panelOpacity": "Main surface opacity",
+  "settings.customAppearance.sidebarOpacity": "Sidebar opacity",
+  "settings.customAppearance.font": "Interface font",
+  "settings.customAppearance.fontHelp":
+    "Enter installed font names separated by commas, or leave blank for the default. Set the code font below; the terminal font stays separate.",
+  "settings.customAppearance.colors": "Edit palette",
+  "settings.customAppearance.light": "Light theme palette",
+  "settings.customAppearance.dark": "Dark theme palette",
+  "settings.customAppearance.colorsHelp":
+    "Light and dark palettes are saved separately. Switch the app theme to preview each. “Inherited” means no override.",
+  "settings.customAppearance.inherit": "Inherited",
+  "settings.customAppearance.resetColor": "Reset",
+  "settings.customAppearance.saveFailed":
+    "Could not save; previous settings were kept. Try a smaller image or check local storage access.",
+  "settings.customAppearance.type": "Choose a PNG, JPEG or WebP image.",
+  "settings.customAppearance.size":
+    "The image exceeds 2 MiB. Compress it or choose a smaller file.",
+  "settings.customAppearance.decode": "Could not read this image. Choose a valid image file.",
+  "settings.customAppearance.color.background": "App background",
+  "settings.customAppearance.color.sidebar": "Sidebar",
+  "settings.customAppearance.color.panel": "Panel",
+  "settings.customAppearance.color.card": "Card",
+  "settings.customAppearance.color.input": "Input",
+  "settings.customAppearance.color.brand": "Brand",
+  "settings.customAppearance.color.foreground": "Primary text",
+  "settings.customAppearance.color.secondaryText": "Secondary text",
+  "settings.customAppearance.color.border": "Border",
+  "settings.customAppearance.color.math": "Math formulas",
+  "settings.customAppearance.mathBold": "Bold math",
+  "settings.customAppearance.mathScale": "Math size",
+  "settings.customAppearance.mathHelp":
+    "Applies to LaTeX formulas in conversations. Size is relative to body text, 121% by default; \\color, \\mathbf and similar commands inside a formula still take precedence.",
+  "settings.customAppearance.color.link": "Links",
+  "settings.customAppearance.color.inlineCode": "Inline code background",
+  "settings.customAppearance.color.primary": "Primary button",
+  "settings.customAppearance.color.primaryText": "Primary button text",
+  "settings.customAppearance.codeFont": "Code font",
+  "settings.customAppearance.codeFontHelp":
+    "Used for code blocks, inline code, code preview and Diff. Leave blank for the default. The terminal font is set in terminal settings.",
   "startPlan.recommendation.subagentDescription":
     "Your Start Plan has quota available for {model}. Switch this subagent’s model to the Start Plan?",
   "startPlan.recommendation.preferenceSaveFailed":

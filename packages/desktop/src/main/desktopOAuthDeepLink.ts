@@ -1,3 +1,4 @@
+import { isDesktopShellIntegrationDisabled } from "./desktopDevelopmentIsolation.js";
 /* oxlint-disable eslint(max-lines) -- Deep Link 路由必须在同一模块内保持协议校验和投递原子性。 */
 import { statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
@@ -402,6 +403,7 @@ export function registerDeepLinkProtocol(
   },
   options: { iconPath?: string } = {},
 ) {
+  if (isDesktopShellIntegrationDisabled()) return;
   const scheme = "zcode";
 
   if (process.defaultApp && process.argv.length >= 2) {
